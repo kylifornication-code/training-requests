@@ -1,0 +1,49 @@
+# Systemd service file for Training Request Management System
+# Copy this file to /etc/systemd/system/training_system.service
+# Then run: systemctl daemon-reload && systemctl enable training_system
+
+[Unit]
+Description=Training Request Management System
+After=network.target postgresql.service mysql.service
+Wants=postgresql.service mysql.service
+
+[Service]
+Type=exec
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/training_system
+Environment=DJANGO_SETTINGS_MODULE=training_system.settings_production
+ExecStart=/var/www/training_system/venv/bin/gunicorn \
+    --bind 127.0.0.1:8000 \
+    --workers 3 \
+    --worker-class sync \
+    --worker-connections 1000 \
+    --max-requests 1000 \
+    --max-requests-jitter 100 \
+    --timeout 30 \
+    --keepalive 2 \
+    --preload \
+    --access-logfile /var/log/training_system/gunicorn_access.log \
+    --error-logfile /var/log/training_system/gunicorn_error.log \
+    --log-level info \
+    training_system.wsgi:application
+
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+RestartSec=5
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/training_system/media /var/log/training_system
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=multi-user.target

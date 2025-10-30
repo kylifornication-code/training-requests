@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Completed Training Report{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-clipboard-check text-success me-2"></i>
+        Completed Training Report
+    </h2>
+    <div>
+        <a href="{% url 'training_requests:training_statistics' %}" class="btn btn-outline-primary">
+            <i class="fas fa-chart-bar me-1"></i>
+            View Statistics
+        </a>
+        <a href="{% url 'training_requests:export_completed_training' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
+           class="btn btn-success">
+            <i class="fas fa-file-csv me-1"></i>
+            Export CSV
+        </a>
+        <a href="{% url 'training_requests:export_completed_training_pdf' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
+           class="btn btn-danger">
+            <i class="fas fa-file-pdf me-1"></i>
+            Export PDF
+        </a>
+    </div>
+</div>
+
+<!-- Filter Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-filter me-2"></i>
+            Filter Completed Training
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="{{ filter_form.search.id_for_label }}" class="form-label">Search</label>
+                {{ filter_form.search }}
+            </div>
+            <div class="col-md-3">
+                <label for="{{ filter_form.team_member.id_for_label }}" class="form-label">Team Member</label>
+                {{ filter_form.team_member }}
+            </div>
+            <div class="col-md-2">
+                <label for="{{ filter_form.training_type.id_for_label }}" class="form-label">Type</label>
+                {{ filter_form.training_type }}
+            </div>
+            <div class="col-md-2">
+                <label for="{{ filter_form.completion_date_from.id_for_label }}" class="form-label">From Date</label>
+                {{ filter_form.completion_date_from }}
+            </div>
+            <div class="col-md-2">
+                <label for="{{ filter_form.completion_date_to.id_for_label }}" class="form-label">To Date</label>
+                {{ filter_form.completion_date_to }}
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i>
+                    Apply Filters
+                </button>
+                <a href="{% url 'training_requests:completed_training_report' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Summary -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="mb-0">{{ filtered_count }}</h5>
+                        <p class="mb-0 text-muted">Completed Training Records</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="mb-0">${{ filtered_total_cost|floatformat:0 }}</h5>
+                        <p class="mb-0 text-muted">Total Investment</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-dollar-sign fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-table me-2"></i>
+            Training Records
+            {% if current_filters.search or current_filters.team_member or current_filters.training_type or current_filters.completion_date_from or current_filters.completion_date_to %}
+                <small class="text-muted">(Filtered Results)</small>
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if completed_requests %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Team Member</th>
+                            <th>Type</th>
+                            <th>Cost</th>
+                            <th>Training Period</th>
+                            <th>Completed</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in completed_requests %}
+                        <tr>
+                            <td>
+                                <strong>{{ request.title }}</strong>
+                                {% if request.description %}
+                                    <br><small class="text-muted">{{ request.description|truncatechars:60 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user me-2 text-muted"></i>
+                                    <div>
+                                        <div>{{ request.requester.get_full_name|default:request.requester.username }}</div>
+                                        <small class="text-muted">{{ request.requester.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ request.get_training_type_display }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ request.currency }} {{ request.estimated_cost }}</strong>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ request.start_date|date:"M d" }} - {{ request.end_date|date:"M d, Y" }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    {{ request.completed_at|date:"M d, Y" }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if request.completion_notes %}
+                                    <span class="text-muted" title="{{ request.completion_notes }}">
+                                        {{ request.completion_notes|truncatechars:30 }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'training_requests:request_detail' request.pk %}" 
+                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No Completed Training Found</h5>
+                {% if current_filters.search or current_filters.team_member or current_filters.training_type or current_filters.completion_date_from or current_filters.completion_date_to %}
+                    <p class="text-muted">Try adjusting your filters to see more results.</p>
+                    <a href="{% url 'training_requests:completed_training_report' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-times me-1"></i>
+                        Clear All Filters
+                    </a>
+                {% else %}
+                    <p class="text-muted">No training has been completed yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Active Filters Display -->
+{% if current_filters.search or current_filters.team_member or current_filters.training_type or current_filters.completion_date_from or current_filters.completion_date_to %}
+<div class="mt-3">
+    <small class="text-muted">Active filters:</small>
+    {% if current_filters.search %}
+        <span class="badge bg-light text-dark me-1">Search: {{ current_filters.search }}</span>
+    {% endif %}
+    {% if current_filters.team_member %}
+        <span class="badge bg-light text-dark me-1">Team Member: {{ current_filters.team_member }}</span>
+    {% endif %}
+    {% if current_filters.training_type %}
+        <span class="badge bg-light text-dark me-1">Type: 
+            {% for choice in filter_form.training_type.field.choices %}
+                {% if choice.0 == current_filters.training_type %}{{ choice.1 }}{% endif %}
+            {% endfor %}
+        </span>
+    {% endif %}
+    {% if current_filters.completion_date_from %}
+        <span class="badge bg-light text-dark me-1">From: {{ current_filters.completion_date_from }}</span>
+    {% endif %}
+    {% if current_filters.completion_date_to %}
+        <span class="badge bg-light text-dark me-1">To: {{ current_filters.completion_date_to }}</span>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

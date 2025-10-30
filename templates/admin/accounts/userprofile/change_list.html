@@ -1,0 +1,100 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block result_list %}
+    <div class="results">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col" class="action-checkbox-column">
+                        <div class="text">
+                            <span><input type="checkbox" id="action-toggle"></span>
+                        </div>
+                        <div class="clear"></div>
+                    </th>
+                    {% for header in result_headers %}
+                        <th scope="col" {{ header.class_attrib }}>
+                            {% if header.sortable %}
+                                {% if header.sort_priority > 0 %}
+                                    <div class="sortoptions">
+                                        <a class="sortremove" href="{{ header.url_remove }}" title="{% trans "Remove from sorting" %}"></a>
+                                        {% if header.ascending %}
+                                            <span class="sortpriority" title="{% blocktrans with priority_number=header.sort_priority %}Sorting priority: {{ priority_number }}{% endblocktrans %}">{{ header.sort_priority }}</span>
+                                            <a class="toggle descending" href="{{ header.url_toggle }}" title="{% trans "Toggle sorting" %}"></a>
+                                        {% else %}
+                                            <span class="sortpriority" title="{% blocktrans with priority_number=header.sort_priority %}Sorting priority: {{ priority_number }}{% endblocktrans %}">{{ header.sort_priority }}</span>
+                                            <a class="toggle ascending" href="{{ header.url_toggle }}" title="{% trans "Toggle sorting" %}"></a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                <div class="text"><a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a></div>
+                                <div class="clear"></div>
+                            {% else %}
+                                <div class="text"><span>{{ header.text|capfirst }}</span></div>
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    {% if result.form and result.form.non_field_errors %}
+                        <tr><td colspan="{{ result|length }}">{{ result.form.non_field_errors }}</td></tr>
+                    {% endif %}
+                    <tr class="{% cycle 'row1' 'row2' %}{% if result.form %} form-row{% if result.form.errors %} errors{% endif %}{% endif %}">
+                        {% for item in result %}
+                            {{ item }}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="profile-summary">
+        <h3>Profile Summary</h3>
+        <div class="summary-stats">
+            <div class="stat-item">
+                <strong>Total Profiles:</strong> {{ cl.result_count }}
+            </div>
+            <div class="stat-item">
+                <strong>Active Profiles:</strong> 
+                <span class="active-count">{{ active_profiles_count|default:"N/A" }}</span>
+            </div>
+            <div class="stat-item">
+                <strong>Leadership Members:</strong> 
+                <span class="leadership-count">{{ leadership_count|default:"N/A" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .profile-summary {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    
+    .summary-stats {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        font-size: 14px;
+    }
+    
+    .active-count {
+        color: green;
+        font-weight: bold;
+    }
+    
+    .leadership-count {
+        color: #417690;
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}

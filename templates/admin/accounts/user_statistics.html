@@ -1,0 +1,172 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='accounts' %}">Accounts</a>
+    &rsaquo; <a href="{% url 'admin:accounts_user_changelist' %}">Users</a>
+    &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="module aligned">
+    <h1>{{ title }}</h1>
+    
+    <div class="form-row">
+        <div class="form-column">
+            <fieldset class="module">
+                <h2>User Overview</h2>
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>Total Users:</label>
+                        <div class="readonly"><strong>{{ total_users }}</strong></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>Active Users:</label>
+                        <div class="readonly" style="color: green;"><strong>{{ active_users }}</strong></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>Inactive Users:</label>
+                        <div class="readonly" style="color: red;"><strong>{{ inactive_users }}</strong></div>
+                    </div>
+                </div>
+                {% if users_without_profiles > 0 %}
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>Users Without Profiles:</label>
+                        <div class="readonly" style="color: orange;"><strong>{{ users_without_profiles }}</strong></div>
+                    </div>
+                </div>
+                {% endif %}
+            </fieldset>
+        </div>
+        
+        <div class="form-column">
+            <fieldset class="module">
+                <h2>Role Distribution</h2>
+                {% for role_stat in role_stats %}
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>{{ role_stat.role|title|replace:"_"," " }}:</label>
+                        <div class="readonly"><strong>{{ role_stat.count }}</strong></div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="form-row">
+                    <div class="field-box">
+                        <div class="readonly">No role data available</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </fieldset>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-column">
+            <fieldset class="module">
+                <h2>Recent Activity</h2>
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>New Registrations (Last 30 days):</label>
+                        <div class="readonly"><strong>{{ recent_registrations }}</strong></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="field-box">
+                        <label>Recent Logins (Last 7 days):</label>
+                        <div class="readonly"><strong>{{ recent_logins }}</strong></div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        
+        <div class="form-column">
+            <fieldset class="module">
+                <h2>Quick Actions</h2>
+                <div class="form-row">
+                    <div class="field-box">
+                        <a href="{% url 'admin:accounts_user_changelist' %}" class="button">Manage Users</a>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="field-box">
+                        <a href="{% url 'admin:accounts_userprofile_changelist' %}" class="button">Manage User Profiles</a>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="field-box">
+                        <a href="{% url 'admin:accounts_user_add' %}" class="button default">Add New User</a>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-column {
+    float: left;
+    width: 48%;
+    margin-right: 2%;
+}
+
+.form-column:last-child {
+    margin-right: 0;
+}
+
+.field-box {
+    margin-bottom: 10px;
+}
+
+.field-box label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.readonly {
+    padding: 5px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 5px 0;
+    background-color: #417690;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.button:hover {
+    background-color: #205067;
+    color: white;
+}
+
+.button.default {
+    background-color: #ba2121;
+}
+
+.button.default:hover {
+    background-color: #a41515;
+}
+
+.form-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+</style>
+{% endblock %}

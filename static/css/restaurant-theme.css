@@ -1,0 +1,946 @@
+/* Restaurant Theme CSS for Training Request System */
+
+/* Import Google Fonts for restaurant feel */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    /* Restaurant Color Palette */
+    --chef-red: #c41e3a;           /* Deep red for primary actions */
+    --golden-yellow: #f4d03f;      /* Warm yellow for highlights */
+    --kitchen-green: #27ae60;      /* Fresh green for success */
+    --spice-orange: #e67e22;       /* Warm orange for warnings */
+    --charcoal: #2c3e50;           /* Dark charcoal for text */
+    --cream: #fdf6e3;              /* Warm cream background */
+    --warm-white: #fefefe;         /* Clean white */
+    --sage-green: #95a5a6;         /* Muted sage for secondary */
+    --paprika: #e74c3c;            /* Bright red for danger */
+    --butter: #f39c12;             /* Rich butter color */
+    
+    /* Update Bootstrap variables */
+    --bs-primary: var(--chef-red);
+    --bs-secondary: var(--sage-green);
+    --bs-success: var(--kitchen-green);
+    --bs-warning: var(--butter);
+    --bs-danger: var(--paprika);
+    --bs-info: var(--golden-yellow);
+    --bs-light: var(--cream);
+    --bs-dark: var(--charcoal);
+}
+
+/* Typography */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    color: var(--charcoal);
+}
+
+/* Navigation Bar - Restaurant Header */
+.navbar {
+    background: linear-gradient(135deg, var(--chef-red) 0%, #a91b3d 100%);
+    box-shadow: 0 2px 10px rgba(196, 30, 58, 0.3);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--warm-white) !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.navbar-brand i {
+    color: var(--golden-yellow);
+    margin-right: 0.5rem;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+}
+
+.navbar-nav .nav-link {
+    color: var(--warm-white) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem 1rem !important;
+    display: inline-block;
+    overflow: visible;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--golden-yellow) !important;
+    transform: translateY(-1px);
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 10%;
+    right: 10%;
+    width: 0;
+    height: 3px;
+    background: var(--golden-yellow);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+    margin: 0 auto;
+}
+
+.navbar-nav .nav-link:hover::after {
+    width: 80%;
+    left: 10%;
+    right: 10%;
+}
+
+/* Special handling for dropdown toggles */
+.navbar-nav .dropdown-toggle::after {
+    /* Reset Bootstrap's dropdown arrow styles */
+    border: none !important;
+    content: "▼" !important;
+    font-size: 0.7rem !important;
+    margin-left: 0.5rem !important;
+    position: static !important;
+    vertical-align: middle !important;
+    display: inline !important;
+}
+
+/* Add underline for dropdown toggles using ::before */
+.navbar-nav .dropdown-toggle::before {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 10%;
+    right: 10%;
+    width: 0;
+    height: 3px;
+    background: var(--golden-yellow);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.navbar-nav .dropdown-toggle:hover::before {
+    width: 80%;
+    left: 10%;
+    right: 10%;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    background: var(--warm-white);
+    border: 2px solid var(--golden-yellow);
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    padding: 0.5rem 0;
+}
+
+.dropdown-item {
+    color: var(--charcoal);
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(90deg, var(--cream) 0%, var(--warm-white) 100%);
+    color: var(--chef-red);
+    border-left-color: var(--golden-yellow);
+    transform: translateX(3px);
+}
+
+.dropdown-item i {
+    color: var(--chef-red);
+    width: 20px;
+}
+
+/* Cards - Menu Item Style */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    background: var(--warm-white);
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--chef-red) 0%, #a91b3d 100%);
+    color: var(--warm-white);
+    border: none;
+    padding: 1.25rem 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.card-header i {
+    color: var(--golden-yellow);
+    margin-right: 0.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Buttons - Restaurant Style */
+.btn {
+    border-radius: 25px;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--chef-red) 0%, #a91b3d 100%);
+    border-color: var(--chef-red);
+    color: var(--warm-white);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #a91b3d 0%, var(--chef-red) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(196, 30, 58, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--kitchen-green) 0%, #229954 100%);
+    border-color: var(--kitchen-green);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--butter) 0%, #e67e22 100%);
+    border-color: var(--butter);
+    color: var(--charcoal);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--paprika) 0%, #c0392b 100%);
+    border-color: var(--paprika);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+}
+
+.btn-outline-primary {
+    border-color: var(--chef-red);
+    color: var(--chef-red);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--chef-red);
+    color: var(--warm-white);
+    transform: translateY(-2px);
+}
+
+/* Badges - Chef's Special Tags */
+.badge {
+    border-radius: 15px;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+    border: 1px solid transparent;
+    text-shadow: none;
+}
+
+/* Status badges with better contrast and restaurant theme */
+.bg-warning {
+    background: linear-gradient(135deg, var(--butter) 0%, var(--spice-orange) 100%) !important;
+    color: var(--charcoal) !important;
+    border-color: var(--spice-orange);
+    text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+}
+
+.bg-success {
+    background: linear-gradient(135deg, var(--kitchen-green) 0%, #1e8449 100%) !important;
+    color: var(--warm-white) !important;
+    border-color: var(--kitchen-green);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.bg-danger {
+    background: linear-gradient(135deg, var(--paprika) 0%, #a93226 100%) !important;
+    color: var(--warm-white) !important;
+    border-color: var(--paprika);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.bg-info {
+    background: linear-gradient(135deg, var(--golden-yellow) 0%, var(--butter) 100%) !important;
+    color: var(--charcoal) !important;
+    border-color: var(--golden-yellow);
+    text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, var(--chef-red) 0%, #a91b3d 100%) !important;
+    color: var(--warm-white) !important;
+    border-color: var(--chef-red);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Tables - Menu Style */
+.table {
+    background: var(--warm-white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+}
+
+.table thead th {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #34495e 100%);
+    color: var(--warm-white);
+    border: none;
+    padding: 1rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: var(--cream);
+    transform: scale(1.01);
+}
+
+.table tbody td {
+    padding: 1rem;
+    border-color: var(--cream);
+    vertical-align: middle;
+}
+
+/* Forms - Order Form Style */
+.form-control {
+    border: 2px solid var(--cream);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background: var(--warm-white);
+}
+
+.form-control:focus {
+    border-color: var(--golden-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(244, 208, 63, 0.25);
+    background: var(--warm-white);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Alerts - Kitchen Notifications */
+.alert {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(34, 153, 84, 0.1) 100%);
+    border-left-color: var(--kitchen-green);
+    color: var(--kitchen-green);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(230, 126, 34, 0.1) 100%);
+    border-left-color: var(--butter);
+    color: var(--spice-orange);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(192, 57, 43, 0.1) 100%);
+    border-left-color: var(--paprika);
+    color: var(--paprika);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(244, 208, 63, 0.1) 0%, rgba(241, 196, 15, 0.1) 100%);
+    border-left-color: var(--golden-yellow);
+    color: var(--butter);
+}
+
+/* Pagination - Menu Pages */
+.pagination .page-link {
+    border: 2px solid var(--cream);
+    color: var(--chef-red);
+    padding: 0.75rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background: var(--chef-red);
+    border-color: var(--chef-red);
+    color: var(--warm-white);
+    transform: translateY(-2px);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--chef-red);
+    border-color: var(--chef-red);
+}
+
+/* Progress bars - Cooking Progress */
+.progress {
+    height: 10px;
+    border-radius: 10px;
+    background: var(--cream);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--kitchen-green) 0%, var(--golden-yellow) 100%);
+    border-radius: 10px;
+}
+
+/* Custom Restaurant Elements */
+.restaurant-divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--golden-yellow) 50%, transparent 100%);
+    margin: 2rem 0;
+}
+
+.chef-signature {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--chef-red);
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.menu-section {
+    background: var(--warm-white);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-left: 5px solid var(--golden-yellow);
+}
+
+/* Status indicators - Kitchen Status */
+.status-pending {
+    color: var(--butter);
+    background: rgba(243, 156, 18, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+.status-approved {
+    color: var(--kitchen-green);
+    background: rgba(39, 174, 96, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+.status-denied {
+    color: var(--paprika);
+    background: rgba(231, 76, 60, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+.status-completed {
+    color: var(--kitchen-green);
+    background: rgba(39, 174, 96, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.4rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Animation for loading states */
+@keyframes sizzle {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.loading-sizzle {
+    animation: sizzle 1s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--chef-red) 0%, var(--golden-yellow) 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--golden-yellow) 0%, var(--chef-red) 100%);
+}
+
+/* Dashboard and request list table spacing fixes */
+.card-body .table-responsive {
+    margin: -1rem -1.5rem 1rem -1.5rem;
+    border-radius: 0;
+}
+
+.card-body .table-responsive .table {
+    margin-bottom: 0;
+}
+
+.card-body .table-responsive .table td,
+.card-body .table-responsive .table th {
+    padding: 1rem 1.5rem;
+}
+
+.card-body .table-responsive .table thead th:first-child {
+    padding-left: 1.5rem;
+}
+
+.card-body .table-responsive .table thead th:last-child {
+    padding-right: 1.5rem;
+}
+
+.card-body .table-responsive .table tbody td:first-child {
+    padding-left: 1.5rem;
+}
+
+.card-body .table-responsive .table tbody td:last-child {
+    padding-right: 1.5rem;
+}
+
+/* Ensure request list table matches dashboard styling */
+.card .table-responsive .table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.card .table-responsive .table thead th {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #34495e 100%);
+    color: var(--warm-white);
+    border: none;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card .table-responsive .table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.card .table-responsive .table tbody tr:hover {
+    background: var(--cream);
+    transform: scale(1.01);
+}
+
+.card .table-responsive .table tbody td {
+    border-color: var(--cream);
+    vertical-align: middle;
+}
+
+/* Ensure card footer has consistent padding */
+.card-footer {
+    padding: 1rem 1.5rem;
+    background: var(--cream);
+    border-top: 1px solid rgba(0,0,0,0.125);
+}
+
+/* Dashboard section consistency */
+.dashboard-section {
+    margin-bottom: 3rem;
+}
+
+.dashboard-section:last-child {
+    margin-bottom: 2rem;
+}
+
+.dashboard-section .card {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.dashboard-section .card-header {
+    padding: 1.25rem 1.5rem;
+}
+
+.dashboard-section .card-body {
+    padding: 1.5rem;
+}
+
+/* Statistics cards specific padding */
+.dashboard-section .col-md-3 {
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-section .col-md-3 .card-body {
+    padding: 1.5rem;
+}
+
+/* Add extra spacing after statistics cards section */
+.dashboard-section:has(.col-md-3) {
+    margin-bottom: 3.5rem;
+}
+
+/* Fallback for browsers that don't support :has() */
+.dashboard-section.stats-section {
+    margin-bottom: 3.5rem;
+}
+
+/* Ensure statistics cards have consistent internal spacing */
+.dashboard-section .col-md-3 .card-body .d-flex {
+    align-items: center;
+    min-height: 60px;
+}
+
+.dashboard-section .col-md-3 .card-body h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.dashboard-section .col-md-3 .card-body p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Kitchen Express section specific styling */
+.dashboard-section .card .card-body .row {
+    margin: 0;
+    gap: 1rem;
+}
+
+.dashboard-section .card .card-body .col-md-6 {
+    padding: 1rem;
+    flex: 1;
+}
+
+/* Add breathing room around Kitchen Express */
+.dashboard-section .card {
+    margin-bottom: 1rem;
+}
+
+/* Ensure buttons in Kitchen Express have proper spacing */
+.dashboard-section .d-grid {
+    gap: 0.75rem !important;
+}
+
+/* Fix for search form in card header */
+.card-header .d-flex {
+    align-items: center;
+    gap: 1rem;
+}
+
+.card-header form {
+    margin: 0;
+}
+
+/* Ensure consistent button spacing in card footers */
+.card-footer .btn {
+    margin: 0.25rem;
+}
+
+.card-footer .btn:first-child {
+    margin-left: 0;
+}
+
+.card-footer .btn:last-child {
+    margin-right: 0;
+}
+
+/* Action column styling for better alignment */
+.table td .d-flex.align-items-center {
+    min-height: 38px; /* Match button height */
+}
+
+.table td .badge {
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.table td .badge i {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Status badge hover effects */
+.table td .badge:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* Ensure action buttons are consistent */
+.table td .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+}
+
+/* Center actions column content */
+.table th.text-center,
+.table td.text-center {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.table td.text-center .d-flex {
+    justify-content: center !important;
+}
+
+/* Table badges - different styling for status vs type badges */
+.table .badge {
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+    border: 1px solid transparent;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Status badges in actions column - circular */
+.table td.text-center .badge {
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+/* Type and status badges in regular columns - pill shaped */
+.table td:not(.text-center) .badge {
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    min-width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Specific improvements for readability */
+.table .badge.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    font-weight: 700;
+}
+
+.table .badge.bg-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    font-weight: 700;
+}
+
+.table .badge.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+    color: #212529 !important;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+    font-weight: 700;
+    border-color: #e0a800;
+}
+
+.table .badge.bg-primary {
+    background: linear-gradient(135deg, var(--chef-red) 0%, #a91b3d 100%) !important;
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    font-weight: 700;
+}
+
+/* Request list table consistency */
+.request-title-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 3rem;
+    justify-content: center;
+}
+
+.request-title {
+    font-weight: 600;
+    color: var(--charcoal);
+    line-height: 1.3;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.request-description {
+    font-size: 0.85rem;
+    color: var(--sage-green);
+    line-height: 1.2;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Ensure consistent table cell heights and alignment */
+.table td {
+    vertical-align: middle !important;
+    padding: 1rem 0.75rem;
+    min-height: 3rem;
+}
+
+.table th {
+    vertical-align: middle !important;
+    padding: 1rem 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+/* Ensure all table cells have consistent text alignment */
+.table td:not(.text-center) {
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    min-height: 4rem;
+}
+
+.table tbody tr td {
+    border-top: 1px solid var(--cream);
+}
+
+/* Welcome section consistent padding */
+.dashboard-section h1 {
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+.dashboard-section .lead {
+    margin-bottom: 0;
+    font-size: 1.1rem;
+}
+
+/* Add extra spacing for welcome section */
+.dashboard-section:first-child {
+    margin-bottom: 3.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(196, 30, 58, 0.1);
+}
+
+/* Statistics cards hover effects and spacing */
+.menu-item .card-body {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item:hover .card-body {
+    transform: translateY(-2px);
+}
+
+/* Kitchen Express card specific adjustments */
+.dashboard-section .card .card-body .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dashboard-section .card .card-body .btn:not(.btn-lg) {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+}
+
+/* Responsive adjustments for dashboard sections */
+@media (max-width: 768px) {
+    .dashboard-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .dashboard-section.stats-section {
+        margin-bottom: 3rem;
+    }
+    
+    .dashboard-section:first-child {
+        margin-bottom: 3rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .dashboard-section .col-md-3 {
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-section .col-md-3 .card-body {
+        padding: 1.25rem;
+        text-align: center;
+    }
+    
+    .dashboard-section .col-md-3 .card-body .d-flex {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .dashboard-section .card .card-body .col-md-6 {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-section .card .card-body .col-md-6:last-child {
+        margin-bottom: 0;
+    }
+    
+    .dashboard-section .card .card-body .row {
+        gap: 0.5rem;
+    }
+}

@@ -1,0 +1,513 @@
+{% extends 'base.html' %}
+{% load training_extras %}
+
+{% block title %}Training Statistics Dashboard{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 20px;
+    }
+    .stat-card {
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-chart-bar text-primary me-2"></i>
+        Training Statistics Dashboard
+    </h2>
+    <div>
+        <a href="{% url 'reports:analytics_dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-chart-line me-1"></i>
+            Advanced Analytics
+        </a>
+        <a href="{% url 'training_requests:completed_training_report' %}" class="btn btn-outline-primary">
+            <i class="fas fa-list me-1"></i>
+            View Detailed Report
+        </a>
+        <a href="{% url 'training_requests:export_completed_training' %}" class="btn btn-success">
+            <i class="fas fa-download me-1"></i>
+            Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Overview Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ total_requests }}</h4>
+                        <p class="mb-0">Total Requests</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ completed_count }}</h4>
+                        <p class="mb-0">Completed</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ completion_rate }}%</h4>
+                        <p class="mb-0">Completion Rate</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-percentage fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">${{ total_investment|floatformat:0 }}</h4>
+                        <p class="mb-0">Total Investment</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Visualizations -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Training Type Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="typeDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Monthly Completion Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="monthlyTrendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Training Type Breakdown -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Training Type Breakdown
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if type_breakdown %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Count</th>
+                                    <th>Total Cost</th>
+                                    <th>Avg Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in type_breakdown %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {% for choice in object_list.model.TRAINING_TYPE_CHOICES %}
+                                                {% if choice.0 == item.training_type %}{{ choice.1 }}{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </td>
+                                    <td>{{ item.count }}</td>
+                                    <td>${{ item.total_cost|floatformat:0 }}</td>
+                                    <td>${{ item.total_cost|div:item.count|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No completed training data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Learners -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-trophy me-2"></i>
+                    Top Learners
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if top_learners %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Team Member</th>
+                                    <th>Completed</th>
+                                    <th>Investment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for learner in top_learners %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-user me-1"></i>
+                                        {% if learner.requester__first_name and learner.requester__last_name %}
+                                            {{ learner.requester__first_name }} {{ learner.requester__last_name }}
+                                        {% else %}
+                                            {{ learner.requester__username }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ learner.count }}</span>
+                                    </td>
+                                    <td>${{ learner.total_cost|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No completed training data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Trends -->
+{% if monthly_trends %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Monthly Completion Trends (Last 12 Months)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Completions</th>
+                                <th>Total Cost</th>
+                                <th>Average Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for trend in monthly_trends %}
+                            <tr>
+                                <td>{{ trend.month|date:"F Y" }}</td>
+                                <td>
+                                    <span class="badge bg-success">{{ trend.count }}</span>
+                                </td>
+                                <td>${{ trend.cost|floatformat:0 }}</td>
+                                <td>
+                                    {% if trend.count > 0 %}
+                                        ${{ trend.cost|div:trend.count|floatformat:0 }}
+                                    {% else %}
+                                        $0
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Completions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Completions
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if completed_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Team Member</th>
+                                    <th>Type</th>
+                                    <th>Cost</th>
+                                    <th>Completed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in completed_requests %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ request.title }}</strong>
+                                        {% if request.completion_notes %}
+                                            <br><small class="text-muted">{{ request.completion_notes|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ request.requester.get_full_name|default:request.requester.username }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ request.get_training_type_display }}</span>
+                                    </td>
+                                    <td>{{ request.currency }} {{ request.estimated_cost }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ request.completed_at|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'training_requests:request_detail' request.pk %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                    </span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Completed Training Yet</h5>
+                        <p class="text-muted">Statistics will appear here once training requests are completed.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js configuration
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+
+// Training Type Distribution Chart
+const typeDistributionCtx = document.getElementById('typeDistributionChart').getContext('2d');
+const typeDistributionData = {
+    labels: [{% for item in type_breakdown %}'{% for choice in object_list.model.TRAINING_TYPE_CHOICES %}{% if choice.0 == item.training_type %}{{ choice.1 }}{% endif %}{% endfor %}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        data: [{% for item in type_breakdown %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: [
+            'rgba(13, 110, 253, 0.8)',
+            'rgba(25, 135, 84, 0.8)',
+            'rgba(255, 193, 7, 0.8)',
+            'rgba(220, 53, 69, 0.8)',
+            'rgba(13, 202, 240, 0.8)',
+            'rgba(108, 117, 125, 0.8)'
+        ],
+        borderColor: [
+            'rgba(13, 110, 253, 1)',
+            'rgba(25, 135, 84, 1)',
+            'rgba(255, 193, 7, 1)',
+            'rgba(220, 53, 69, 1)',
+            'rgba(13, 202, 240, 1)',
+            'rgba(108, 117, 125, 1)'
+        ],
+        borderWidth: 1
+    }]
+};
+
+new Chart(typeDistributionCtx, {
+    type: 'doughnut',
+    data: typeDistributionData,
+    options: {
+        plugins: {
+            legend: {
+                position: 'bottom'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                        return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Monthly Trends Chart
+const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+const monthlyTrendsData = {
+    labels: [{% for trend in monthly_trends %}'{{ trend.month|date:"M Y" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        label: 'Completions',
+        data: [{% for trend in monthly_trends %}{{ trend.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        borderColor: 'rgba(25, 135, 84, 1)',
+        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+        tension: 0.1,
+        fill: true
+    }, {
+        label: 'Total Cost',
+        data: [{% for trend in monthly_trends %}{{ trend.cost|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        borderColor: 'rgba(13, 110, 253, 1)',
+        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+        tension: 0.1,
+        fill: false,
+        yAxisID: 'y1'
+    }]
+};
+
+new Chart(monthlyTrendsCtx, {
+    type: 'line',
+    data: monthlyTrendsData,
+    options: {
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Completions'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Total Cost ($)'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                },
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        if (context.datasetIndex === 1) {
+                            return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                        }
+                        return context.dataset.label + ': ' + context.parsed.y;
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

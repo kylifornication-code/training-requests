@@ -1,0 +1,145 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        {{ site_header|default:_('Django administration') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Quick Statistics</h2>
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h3>Users</h3>
+                <div class="stat-number">{{ total_users|default:"N/A" }}</div>
+                <a href="{% url 'admin:auth_user_changelist' %}" class="stat-link">Manage Users</a>
+            </div>
+            <div class="stat-box">
+                <h3>Training Requests</h3>
+                <div class="stat-number">{{ total_requests|default:"N/A" }}</div>
+                <a href="{% url 'admin:training_requests_trainingrequest_changelist' %}" class="stat-link">View Requests</a>
+            </div>
+            <div class="stat-box">
+                <h3>Pending Approvals</h3>
+                <div class="stat-number">{{ pending_requests|default:"N/A" }}</div>
+                <a href="{% url 'admin:training_requests_trainingrequest_changelist' %}?status__exact=PENDING" class="stat-link">Review Pending</a>
+            </div>
+        </div>
+    </div>
+
+    {% if app_list %}
+        {% for app in app_list %}
+            <div class="app-{{ app.app_label }} module">
+                <table>
+                    <caption>
+                        <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+                    </caption>
+                    {% for model in app.models %}
+                        <tr class="model-{{ model.object_name|lower }}">
+                            {% if model.admin_url %}
+                                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                            {% else %}
+                                <th scope="row">{{ model.name }}</th>
+                            {% endif %}
+
+                            {% if model.add_url %}
+                                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
+
+                            {% if model.admin_url %}
+                                {% if model.view_only %}
+                                    <td><a href="{{ model.admin_url }}" class="viewlink">{% trans 'View' %}</a></td>
+                                {% else %}
+                                    <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                                {% endif %}
+                            {% else %}
+                                <td>&nbsp;</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{% trans "You don't have permission to view or edit anything." %}</p>
+    {% endif %}
+</div>
+
+<style>
+.dashboard-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    min-width: 150px;
+    flex: 1;
+}
+
+.stat-box h3 {
+    margin: 0 0 10px 0;
+    color: #666;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #417690;
+    margin-bottom: 10px;
+}
+
+.stat-link {
+    color: #417690;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.stat-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .dashboard-stats {
+        flex-direction: column;
+    }
+    
+    .stat-box {
+        min-width: auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans 'Quick Actions' %}</h2>
+        <ul>
+            <li><a href="{% url 'admin:accounts_user_statistics' %}">View User Statistics</a></li>
+            <li><a href="{% url 'admin:auth_user_add' %}">Add New User</a></li>
+            <li><a href="{% url 'admin:training_requests_trainingrequest_changelist' %}?status__exact=PENDING">Review Pending Requests</a></li>
+            <li><a href="{% url 'admin:auth_user_changelist' %}?userprofile__role__exact=LEADERSHIP">Manage Leadership</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

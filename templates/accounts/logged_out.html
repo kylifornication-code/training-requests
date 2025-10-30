@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Logged Out - Training Request System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Logged Out Successfully
+                </h3>
+                <p class="mb-0 mt-2 opacity-75">You have been signed out safely</p>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-shield-alt fa-4x text-success mb-3"></i>
+                    <h5>Session Ended</h5>
+                    <p class="text-muted">
+                        You have been successfully logged out of the Training Request System.
+                    </p>
+                </div>
+                
+                <div class="alert alert-success">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Your session has been securely terminated. Thank you for using the system!
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login Again
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-user-plus me-2"></i>Create New Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-redirect to login after 10 seconds
+setTimeout(function() {
+    window.location.href = "{% url 'accounts:login' %}";
+}, 10000);
+
+// Show countdown
+let countdown = 10;
+const countdownElement = document.createElement('div');
+countdownElement.className = 'mt-3 text-muted';
+countdownElement.innerHTML = `<small><i class="fas fa-clock me-1"></i>Redirecting to login in <span id="countdown">${countdown}</span> seconds...</small>`;
+document.querySelector('.card-body').appendChild(countdownElement);
+
+const countdownInterval = setInterval(function() {
+    countdown--;
+    document.getElementById('countdown').textContent = countdown;
+    if (countdown <= 0) {
+        clearInterval(countdownInterval);
+    }
+}, 1000);
+</script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% for option in widget.optgroups %}
+  {% for radio in option.1 %}
+    <div class="form-check">
+      <input type="radio" name="{{ widget.name }}" value="{{ radio.value|stringformat:'s' }}"{% if radio.selected %} checked{% endif %}{% include "django/forms/widgets/attrs.html" %} class="form-check-input" id="{{ radio.attrs.id }}">
+      <label class="form-check-label" for="{{ radio.attrs.id }}">{{ radio.label }}</label>
+    </div>
+  {% endfor %}
+{% endfor %}

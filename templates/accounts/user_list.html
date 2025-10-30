@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Team Members - Training Request System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .user-card {
+        transition: transform 0.2s;
+    }
+    .user-card:hover {
+        transform: translateY(-2px);
+    }
+    .role-badge {
+        font-size: 0.8rem;
+    }
+    .status-toggle {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Team Members</h2>
+                    <p class="text-muted">Total: {{ total_users }} active users</p>
+                </div>
+                {% if can_manage_users %}
+                <div>
+                    <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New User
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                {% for user in users %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card user-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        {{ user.first_name }} {{ user.last_name }}
+                                        {% if not user.userprofile.is_active %}
+                                            <small class="text-muted">(Inactive)</small>
+                                        {% endif %}
+                                    </h5>
+                                    <p class="card-text text-muted mb-0">@{{ user.username }}</p>
+                                </div>
+                                {% if can_manage_users %}
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'accounts:user_role_update' user.id %}">
+                                                <i class="fas fa-user-cog"></i> Change Role
+                                            </a>
+                                        </li>
+                                        {% if user != request.user %}
+                                        <li>
+                                            <a class="dropdown-item status-toggle" href="#" 
+                                               onclick="toggleUserStatus({{ user.id }}, '{{ user.username }}', {{ user.userprofile.is_active|yesno:'true,false' }})">
+                                                {% if user.userprofile.is_active %}
+                                                    <i class="fas fa-user-slash text-warning"></i> Deactivate
+                                                {% else %}
+                                                    <i class="fas fa-user-check text-success"></i> Activate
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-2">
+                                <span class="badge role-badge 
+                                    {% if user.userprofile.role == 'ADMIN' %}bg-danger
+                                    {% elif user.userprofile.role == 'LEADERSHIP' %}bg-warning
+                                    {% else %}bg-primary{% endif %}">
+                                    {{ user.userprofile.get_role_display }}
+                                </span>
+                                {% if user.userprofile.is_active %}
+                                    <span class="badge bg-success role-badge">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary role-badge">Inactive</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-muted small">
+                                <div><i class="fas fa-envelope"></i> {{ user.email }}</div>
+                                <div><i class="fas fa-calendar"></i> Joined {{ user.date_joined|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4>No team members found</h4>
+                        <p class="text-muted">There are no active team members in the system.</p>
+                        {% if can_manage_users %}
+                        <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
+                            Add First User
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="User pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Status Toggle Modal -->
+<div class="modal fade" id="statusToggleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="statusToggleMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmStatusToggle">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentUserId = null;
+let currentAction = null;
+
+function toggleUserStatus(userId, username, isActive) {
+    currentUserId = userId;
+    currentAction = isActive ? 'deactivate' : 'activate';
+    
+    const message = `Are you sure you want to ${currentAction} user "${username}"?`;
+    document.getElementById('statusToggleMessage').textContent = message;
+    
+    const modal = new bootstrap.Modal(document.getElementById('statusToggleModal'));
+    modal.show();
+}
+
+document.getElementById('confirmStatusToggle').addEventListener('click', function() {
+    if (currentUserId) {
+        fetch(`/users/${currentUserId}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+                
+                // Reload page to reflect changes
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                // Show error message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    Error: ${data.error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                An error occurred while updating user status.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+        });
+        
+        // Hide modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('statusToggleModal'));
+        modal.hide();
+    }
+});
+</script>
+{% endblock %}

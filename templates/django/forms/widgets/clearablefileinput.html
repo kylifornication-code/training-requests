@@ -1,0 +1,1 @@
+{% if widget.is_initial %}{{ widget.initial_text }}: <a href="{{ widget.value.url }}">{{ widget.value }}</a>{% if not widget.required %}<br>{{ widget.clear_checkbox_label }}: {{ widget.clear_checkbox_input }}{% endif %}<br>{{ widget.input_text }}:{% endif %}<input type="file" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} />

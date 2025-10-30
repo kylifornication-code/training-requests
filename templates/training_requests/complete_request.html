@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Training Request - {{ request_obj.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Complete Training Request
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Request Summary -->
+                <div class="mb-4">
+                    <h6 class="text-muted">Request Details</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Title:</strong> {{ request_obj.title }}</p>
+                            <p><strong>Requester:</strong> {{ request_obj.requester.get_full_name|default:request_obj.requester.username }}</p>
+                            <p><strong>Type:</strong> {{ request_obj.get_training_type_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Cost:</strong> {{ request_obj.currency }} {{ request_obj.estimated_cost }}</p>
+                            <p><strong>Training Dates:</strong> {{ request_obj.start_date }} to {{ request_obj.end_date }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-success">{{ request_obj.get_status_display }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Completion Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.completion_date.id_for_label }}" class="form-label">
+                            Completion Date
+                        </label>
+                        {{ form.completion_date }}
+                        {% if form.completion_date.help_text %}
+                            <div class="form-text">{{ form.completion_date.help_text }}</div>
+                        {% endif %}
+                        {% if form.completion_date.errors %}
+                            <div class="text-danger">
+                                {% for error in form.completion_date.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.completion_notes.id_for_label }}" class="form-label">
+                            Completion Notes
+                        </label>
+                        {{ form.completion_notes }}
+                        {% if form.completion_notes.help_text %}
+                            <div class="form-text">{{ form.completion_notes.help_text }}</div>
+                        {% endif %}
+                        {% if form.completion_notes.errors %}
+                            <div class="text-danger">
+                                {% for error in form.completion_notes.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i>
+                            Mark as Completed
+                        </button>
+                        <a href="{% url 'training_requests:request_detail' request_obj.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Request
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Completion Guidelines
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>
+                        <small>Set the actual completion date (defaults to today)</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-sticky-note text-primary me-2"></i>
+                        <small>Add notes about training outcomes or feedback</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        <small>Completed training will appear in analytics reports</small>
+                    </li>
+                    <li>
+                        <i class="fas fa-bell text-primary me-2"></i>
+                        <small>The requester will be notified of completion</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

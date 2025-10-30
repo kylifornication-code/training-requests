@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block title %}Kitchen Dashboard - Chef's Training Kitchen{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="row dashboard-section">
+    <div class="col-12">
+        <h1>Welcome back to the kitchen, {{ user.first_name|default:user.username }}!</h1>
+        <p class="lead text-muted">Manage your recipe training orders and track your culinary skill development.</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row dashboard-section stats-section">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white menu-item">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats.total_requests }}</h4>
+                        <p class="mb-0">Total Recipe Orders</p>
+                    </div>
+                    <div class="align-self-center steam-effect">
+                        <i class="fas fa-list fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white menu-item">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats.pending_requests }}</h4>
+                        <p class="mb-0">In Kitchen Queue</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x opacity-75 kitchen-timer"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white menu-item">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats.approved_requests }}</h4>
+                        <p class="mb-0">Chef Approved</p>
+                    </div>
+                    <div class="align-self-center steam-effect">
+                        <i class="fas fa-check fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white menu-item spice-sprinkle">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats.completed_requests }}</h4>
+                        <p class="mb-0">Recipes Mastered</p>
+                    </div>
+                    <div class="align-self-center steam-effect">
+                        <i class="fas fa-trophy fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row dashboard-section">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Kitchen Express</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'training_requests:create_request' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Order New Recipe Training
+                            </a>
+                            <a href="{% url 'training_requests:request_list' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>View All My Recipe Orders
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {% if user_role == 'LEADERSHIP' or user_role == 'ADMIN' %}
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'training_requests:pending_requests' %}" class="btn btn-warning">
+                                <i class="fas fa-clipboard-list me-2"></i>Review Kitchen Orders
+                                {% if pending_count > 0 %}
+                                    <span class="badge bg-light text-dark ms-2">{{ pending_count }}</span>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'training_requests:request_list' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-chart-bar me-2"></i>Kitchen Staff Overview
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user_role == 'ADMIN' %}
+                        <div class="d-grid gap-2 mt-2">
+                            <a href="/admin/" class="btn btn-danger">
+                                <i class="fas fa-cog me-2"></i>Restaurant Management
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Recipe Orders -->
+<div class="row dashboard-section">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Recipe Orders</h5>
+                <div>
+                    <!-- Search and Filter Form -->
+                    <form method="get" class="d-flex gap-2" id="dashboardFilterForm">
+                        <input type="text" class="form-control form-control-sm" name="search" 
+                               value="{{ current_filters.search }}" placeholder="Search recipe orders..." style="width: 200px;">
+                        <select class="form-select form-select-sm" name="status" style="width: 120px;">
+                            <option value="">All Status</option>
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        {% if current_filters.search or current_filters.status %}
+                            <a href="{% url 'training_requests:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if recent_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Cost</th>
+                                    <th>Start Date</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in recent_requests %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ request.title }}</strong>
+                                                {% if request.description %}
+                                                    <br><small class="text-muted">{{ request.description|truncatechars:50 }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-utensils me-1"></i>{{ request.get_training_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ request.estimated_cost }} {{ request.currency }}</strong>
+                                        </td>
+                                        <td>{{ request.start_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if request.status == 'PENDING' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock me-1"></i>In Kitchen Queue
+                                                </span>
+                                            {% elif request.status == 'APPROVED' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-chef-hat me-1"></i>Chef Approved
+                                                </span>
+                                            {% elif request.status == 'DENIED' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times me-1"></i>Not Today
+                                                </span>
+                                            {% elif request.status == 'COMPLETED' %}
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-trophy me-1"></i>Recipe Mastered
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ request.created_at|date:"M d, Y" }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <a href="{% url 'training_requests:request_detail' request.pk %}" 
+                                                   class="btn btn-outline-primary btn-sm" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if request.status == 'PENDING' %}
+                                                    <span class="badge bg-warning text-dark d-flex align-items-center justify-content-center" 
+                                                          title="Awaiting Review" style="width: 32px; height: 32px;">
+                                                        <i class="fas fa-hourglass-half"></i>
+                                                    </span>
+                                                {% elif request.status == 'APPROVED' %}
+                                                    <span class="badge bg-success d-flex align-items-center justify-content-center" 
+                                                          title="Recipe Approved" style="width: 32px; height: 32px;">
+                                                        <i class="fas fa-thumbs-up"></i>
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination for dashboard -->
+                    {% if is_paginated %}
+                        <div class="card-footer">
+                            <nav aria-label="Dashboard pagination">
+                                <ul class="pagination pagination-sm justify-content-center mb-0">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                                    </li>
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-footer text-center">
+                        <a href="{% url 'training_requests:request_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>View All My Recipe Orders
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 px-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No recipe orders found</h5>
+                        <p class="text-muted mb-4">
+                            {% if current_filters.search or current_filters.status %}
+                                No recipe orders match your current filters.
+                            {% else %}
+                                You haven't submitted any recipe orders yet.
+                            {% endif %}
+                        </p>
+                        {% if not current_filters.search and not current_filters.status %}
+                            <a href="{% url 'training_requests:create_request' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Submit Your First Recipe Order
+                            </a>
+                        {% else %}
+                            <a href="{% url 'training_requests:dashboard' %}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-times me-2"></i>Clear Filters
+                            </a>
+                            <a href="{% url 'training_requests:create_request' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>New Recipe Order
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Summary -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Your Profile</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4"><strong>Name:</strong></div>
+                    <div class="col-sm-8">{{ user.first_name }} {{ user.last_name|default:"" }}</div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-sm-4"><strong>Username:</strong></div>
+                    <div class="col-sm-8">{{ user.username }}</div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-sm-4"><strong>Email:</strong></div>
+                    <div class="col-sm-8">{{ user.email }}</div>
+                </div>
+                <hr class="my-2">
+                <div class="row">
+                    <div class="col-sm-4"><strong>Role:</strong></div>
+                    <div class="col-sm-8">
+                        <span class="badge bg-secondary">{{ user.userprofile.get_role_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Training Summary</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.total_requests > 0 %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Completion Rate</span>
+                            <span>{{ stats.completion_percentage }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {{ stats.completion_percentage }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-success mb-0">{{ stats.total_cost }}</h4>
+                                <small class="text-muted">Total Investment</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-info mb-0">{{ stats.completed_requests }}</h4>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                        <p class="mb-0">No training data available yet.</p>
+                        <small>Submit your first request to see statistics.</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-submit form on filter change
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.querySelector('select[name="status"]');
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            document.getElementById('dashboardFilterForm').submit();
+        });
+    }
+});
+</script>
+{% endblock %}

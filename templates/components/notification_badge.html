@@ -1,0 +1,7 @@
+{% if count > 0 %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-{{ variant|default:'warning' }} {% if variant == 'warning' %}text-dark{% else %}text-white{% endif %} notification-badge" 
+          style="font-size: 0.6rem;">
+        {{ count }}
+        <span class="visually-hidden">{{ label|default:'notifications' }}</span>
+    </span>
+{% endif %}

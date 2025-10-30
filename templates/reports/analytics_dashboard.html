@@ -1,0 +1,623 @@
+{% extends 'base.html' %}
+{% load math_filters %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 20px;
+    }
+    .stat-card {
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    .metric-card {
+        border-left: 4px solid;
+    }
+    .metric-card.primary { border-left-color: #0d6efd; }
+    .metric-card.success { border-left-color: #198754; }
+    .metric-card.warning { border-left-color: #ffc107; }
+    .metric-card.danger { border-left-color: #dc3545; }
+    .metric-card.info { border-left-color: #0dcaf0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-chart-line text-primary me-2"></i>
+        Analytics Dashboard
+    </h2>
+    <div>
+        <a href="{% url 'reports:export_analytics_pdf' %}" class="btn btn-danger">
+            <i class="fas fa-file-pdf me-1"></i>
+            Export PDF
+        </a>
+        <a href="{% url 'reports:export_budget_analysis_csv' %}" class="btn btn-success">
+            <i class="fas fa-file-csv me-1"></i>
+            Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Date Range Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="date_from" class="form-label">From Date</label>
+                <input type="date" class="form-control" id="date_from" name="date_from" 
+                       value="{{ current_filters.date_from }}">
+            </div>
+            <div class="col-md-4">
+                <label for="date_to" class="form-label">To Date</label>
+                <input type="date" class="form-control" id="date_to" name="date_to" 
+                       value="{{ current_filters.date_to }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-filter me-1"></i>
+                    Apply Filter
+                </button>
+                <a href="{% url 'reports:analytics_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card metric-card primary stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clipboard-list fa-2x text-primary mb-2"></i>
+                <h4 class="mb-0">{{ total_requests }}</h4>
+                <small class="text-muted">Total Requests</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card metric-card warning stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                <h4 class="mb-0">{{ pending_requests }}</h4>
+                <small class="text-muted">Pending</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card metric-card success stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h4 class="mb-0">{{ approved_requests }}</h4>
+                <small class="text-muted">Approved</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card metric-card info stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-graduation-cap fa-2x text-info mb-2"></i>
+                <h4 class="mb-0">{{ completed_requests }}</h4>
+                <small class="text-muted">Completed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card metric-card danger stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                <h4 class="mb-0">{{ denied_requests }}</h4>
+                <small class="text-muted">Denied</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card metric-card primary stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x text-primary mb-2"></i>
+                <h4 class="mb-0">${{ total_budget_allocated|floatformat:0 }}</h4>
+                <small class="text-muted">Total Budget</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Budget Analysis -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-wallet me-2"></i>
+                    Budget Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Allocated:</span>
+                        <strong>${{ total_budget_allocated|floatformat:2 }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Pending Budget:</span>
+                        <strong class="text-warning">${{ pending_budget|floatformat:2 }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Average Cost:</span>
+                        <strong>${{ average_request_cost|floatformat:2 }}</strong>
+                    </div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {% if total_budget_allocated > 0 %}{{ total_budget_allocated|sub:pending_budget|div:total_budget_allocated|mul:100 }}{% else %}0{% endif %}%">
+                        Allocated
+                    </div>
+                    <div class="progress-bar bg-warning" role="progressbar" 
+                         style="width: {% if total_budget_allocated > 0 %}{{ pending_budget|div:total_budget_allocated|mul:100 }}{% else %}0{% endif %}%">
+                        Pending
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Monthly Budget Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="monthlyBudgetChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Training Type Analysis -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Training Type Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="trainingTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-percentage me-2"></i>
+                    Approval Rates by Type
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="approvalRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cost Distribution -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-doughnut me-2"></i>
+                    Cost Range Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="costDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-area me-2"></i>
+                    Quarterly Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="quarterlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Performance -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    Top Requesters
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="topRequestersChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-trophy me-2"></i>
+                    Team Performance Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Team Member</th>
+                                <th>Requests</th>
+                                <th>Approved</th>
+                                <th>Rate</th>
+                                <th>Investment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in team_performance|slice:":10" %}
+                            <tr>
+                                <td>
+                                    {% if member.requester__first_name and member.requester__last_name %}
+                                        {{ member.requester__first_name }} {{ member.requester__last_name }}
+                                    {% else %}
+                                        {{ member.requester__username }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ member.total_requests }}</td>
+                                <td>{{ member.approved_requests }}</td>
+                                <td>{{ member.approval_rate|floatformat:1 }}%</td>
+                                <td>${{ member.total_investment|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Statistics Tables -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Training Type Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Count</th>
+                                <th>Total Cost</th>
+                                <th>Avg Cost</th>
+                                <th>Approved</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in training_type_stats %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {% for choice in view.model.TRAINING_TYPE_CHOICES %}
+                                            {% if choice.0 == stat.training_type %}{{ choice.1 }}{% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </td>
+                                <td>{{ stat.count }}</td>
+                                <td>${{ stat.total_cost|floatformat:0 }}</td>
+                                <td>${{ stat.avg_cost|floatformat:0 }}</td>
+                                <td>{{ stat.approved_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Cost Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Cost Range</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dist in cost_distribution %}
+                            <tr>
+                                <td>{{ dist.range }}</td>
+                                <td>{{ dist.count }}</td>
+                                <td>{{ dist.percentage }}%</td>
+                                <td>${{ dist.total_cost|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js configuration
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+
+// Monthly Budget Trends Chart
+const monthlyBudgetCtx = document.getElementById('monthlyBudgetChart').getContext('2d');
+fetch('{% url "reports:budget_analysis_api" %}{% if current_filters.date_from or current_filters.date_to %}?{% if current_filters.date_from %}date_from={{ current_filters.date_from }}{% endif %}{% if current_filters.date_to %}&date_to={{ current_filters.date_to }}{% endif %}{% endif %}')
+    .then(response => response.json())
+    .then(data => {
+        new Chart(monthlyBudgetCtx, {
+            type: 'line',
+            data: {
+                labels: data.monthly_budget.map(item => item.month_name),
+                datasets: [{
+                    label: 'Requested Budget',
+                    data: data.monthly_budget.map(item => item.requested),
+                    borderColor: 'rgb(255, 193, 7)',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.1
+                }, {
+                    label: 'Approved Budget',
+                    data: data.monthly_budget.map(item => item.approved),
+                    borderColor: 'rgb(25, 135, 84)',
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+// Training Type Distribution Chart
+const trainingTypeCtx = document.getElementById('trainingTypeChart').getContext('2d');
+fetch('{% url "reports:budget_analysis_api" %}{% if current_filters.date_from or current_filters.date_to %}?{% if current_filters.date_from %}date_from={{ current_filters.date_from }}{% endif %}{% if current_filters.date_to %}&date_to={{ current_filters.date_to }}{% endif %}{% endif %}')
+    .then(response => response.json())
+    .then(data => {
+        new Chart(trainingTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.type_budget.map(item => item.type),
+                datasets: [{
+                    data: data.type_budget.map(item => item.budget),
+                    backgroundColor: [
+                        'rgba(13, 110, 253, 0.8)',
+                        'rgba(25, 135, 84, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(13, 202, 240, 0.8)',
+                        'rgba(108, 117, 125, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.parsed.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+// Approval Rates Chart
+const approvalRateCtx = document.getElementById('approvalRateChart').getContext('2d');
+const approvalRateData = {
+    labels: [{% for rate in approval_rates %}'{{ rate.type }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        label: 'Approval Rate (%)',
+        data: [{% for rate in approval_rates %}{{ rate.rate }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: 'rgba(25, 135, 84, 0.8)',
+        borderColor: 'rgba(25, 135, 84, 1)',
+        borderWidth: 1
+    }]
+};
+
+new Chart(approvalRateCtx, {
+    type: 'bar',
+    data: approvalRateData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Approval Rate: ' + context.parsed.y + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Cost Distribution Chart
+const costDistributionCtx = document.getElementById('costDistributionChart').getContext('2d');
+const costDistributionData = {
+    labels: [{% for dist in cost_distribution %}'{{ dist.range }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        data: [{% for dist in cost_distribution %}{{ dist.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: [
+            'rgba(13, 110, 253, 0.8)',
+            'rgba(25, 135, 84, 0.8)',
+            'rgba(255, 193, 7, 0.8)',
+            'rgba(220, 53, 69, 0.8)'
+        ]
+    }]
+};
+
+new Chart(costDistributionCtx, {
+    type: 'doughnut',
+    data: costDistributionData,
+    options: {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed + ' requests';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Quarterly Trends Chart
+const quarterlyCtx = document.getElementById('quarterlyChart').getContext('2d');
+const quarterlyData = {
+    labels: [{% for quarter in quarterly_data %}'Q{{ quarter.quarter|date:"n" }} {{ quarter.quarter|date:"Y" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        label: 'Total Requests',
+        data: [{% for quarter in quarterly_data %}{{ quarter.requests }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: 'rgba(13, 110, 253, 0.8)',
+        borderColor: 'rgba(13, 110, 253, 1)',
+        borderWidth: 1
+    }, {
+        label: 'Approved Requests',
+        data: [{% for quarter in quarterly_data %}{{ quarter.approved }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: 'rgba(25, 135, 84, 0.8)',
+        borderColor: 'rgba(25, 135, 84, 1)',
+        borderWidth: 1
+    }]
+};
+
+new Chart(quarterlyCtx, {
+    type: 'bar',
+    data: quarterlyData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Top Requesters Chart
+const topRequestersCtx = document.getElementById('topRequestersChart').getContext('2d');
+fetch('{% url "reports:team_performance_api" %}')
+    .then(response => response.json())
+    .then(data => {
+        new Chart(topRequestersCtx, {
+            type: 'horizontalBar',
+            data: {
+                labels: data.most_active.slice(0, 8).map(item => item.name),
+                datasets: [{
+                    label: 'Total Requests',
+                    data: data.most_active.slice(0, 8).map(item => item.total_requests),
+                    backgroundColor: 'rgba(13, 110, 253, 0.8)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

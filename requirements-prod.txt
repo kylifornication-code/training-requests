@@ -1,0 +1,61 @@
+# Production requirements for Training Request Management System
+# Includes all base requirements plus production-specific packages
+
+# Base requirements
+-r requirements.txt
+
+# Production web server
+gunicorn==21.2.0
+
+# Database drivers
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+mysqlclient==2.2.4      # MySQL adapter (alternative to PyMySQL)
+
+# Static file serving
+whitenoise==6.6.0
+
+# Environment variable management
+python-decouple==3.8
+
+# Caching (optional - Redis)
+django-redis==5.4.0
+redis==5.0.1
+
+# Security enhancements
+django-csp==3.7         # Content Security Policy
+django-ratelimit==4.1.0 # Rate limiting
+
+# Monitoring and logging
+sentry-sdk==1.38.0      # Error tracking (optional)
+
+# Performance monitoring
+django-debug-toolbar==4.2.0  # Remove in production, useful for staging
+
+# Health checks
+django-health-check==3.17.0
+
+# SSL/TLS certificate management (if using Let's Encrypt)
+certbot==2.7.4
+
+# Process management
+supervisor==4.2.5
+
+# System monitoring
+psutil==5.9.6
+
+# Backup utilities
+django-dbbackup==4.0.2
+
+# Email backend improvements
+django-ses==3.5.2       # Amazon SES backend (optional)
+
+# Additional security
+django-axes==6.1.1      # Brute force protection
+django-cors-headers==4.3.1  # CORS handling
+
+# Production utilities
+django-extensions==3.2.3
+django-environ==0.11.2  # Alternative to python-decouple
+
+# Compression and optimization
+django-compressor==4.4   # CSS/JS compression

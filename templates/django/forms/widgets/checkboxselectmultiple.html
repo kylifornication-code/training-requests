@@ -1,0 +1,8 @@
+{% for option in widget.optgroups %}
+  {% for checkbox in option.1 %}
+    <div class="form-check">
+      <input type="checkbox" name="{{ widget.name }}" value="{{ checkbox.value|stringformat:'s' }}"{% if checkbox.selected %} checked{% endif %}{% include "django/forms/widgets/attrs.html" %} class="form-check-input" id="{{ checkbox.attrs.id }}">
+      <label class="form-check-label" for="{{ checkbox.attrs.id }}">{{ checkbox.label }}</label>
+    </div>
+  {% endfor %}
+{% endfor %}

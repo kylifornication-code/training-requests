@@ -1,0 +1,43 @@
+<form method="get" class="d-flex gap-2 align-items-center flex-wrap" id="{{ form_id|default:'filterForm' }}">
+    {% if search_enabled %}
+        <div class="flex-grow-1" style="min-width: 200px;">
+            <input type="text" class="form-control form-control-sm" name="search" 
+                   value="{{ current_filters.search }}" placeholder="{{ search_placeholder|default:'Search...' }}">
+        </div>
+    {% endif %}
+    
+    {% if status_choices %}
+        <div>
+            <select class="form-select form-select-sm" name="status" style="min-width: 120px;">
+                <option value="">All Status</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+    
+    {% if date_filter %}
+        <div>
+            <input type="date" class="form-control form-control-sm" name="date_from" 
+                   value="{{ current_filters.date_from }}" placeholder="From date">
+        </div>
+        <div>
+            <input type="date" class="form-control form-control-sm" name="date_to" 
+                   value="{{ current_filters.date_to }}" placeholder="To date">
+        </div>
+    {% endif %}
+    
+    <div class="d-flex gap-1">
+        <button type="submit" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-search"></i>
+        </button>
+        {% if has_filters %}
+            <a href="{{ clear_url }}" class="btn btn-outline-secondary btn-sm" title="Clear filters">
+                <i class="fas fa-times"></i>
+            </a>
+        {% endif %}
+    </div>
+</form>

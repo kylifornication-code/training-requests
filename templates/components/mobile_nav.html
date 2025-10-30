@@ -1,0 +1,112 @@
+<!-- Mobile Navigation Offcanvas -->
+<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="mobileNavLabel">
+            <i class="fas fa-utensils me-2"></i>Chef's Kitchen
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% if user.is_authenticated %}
+            <!-- User Info -->
+            <div class="mb-4 p-3 bg-light rounded">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user-circle fa-2x text-primary me-3"></i>
+                    <div>
+                        <div class="fw-bold">{{ user.first_name|default:user.username }}</div>
+                        <small class="text-muted">{{ user.userprofile.get_role_display }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <ul class="list-unstyled">
+                <li class="mb-2">
+                    <a href="{% url 'training_requests:dashboard' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                        <i class="fas fa-tachometer-alt me-3"></i>Dashboard
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="{% url 'training_requests:request_list' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                        <i class="fas fa-list me-3"></i>My Recipe Orders
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="{% url 'training_requests:create_request' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                        <i class="fas fa-plus me-3"></i>New Recipe Order
+                    </a>
+                </li>
+                
+                {% if user.userprofile.role == 'LEADERSHIP' or user.userprofile.role == 'ADMIN' %}
+                    <li class="mb-2">
+                        <hr class="my-3">
+                        <h6 class="text-muted text-uppercase small">Head Chef</h6>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'training_requests:leadership_dashboard' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                            <i class="fas fa-chef-hat me-3"></i>Head Chef Dashboard
+                            {% if pending_count > 0 %}
+                                <span class="badge bg-warning text-dark ms-auto">{{ pending_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'training_requests:pending_requests' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                            <i class="fas fa-clipboard-list me-3"></i>Orders Awaiting Approval
+                            {% if pending_count > 0 %}
+                                <span class="badge bg-warning text-dark ms-auto">{{ pending_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'training_requests:training_statistics' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                            <i class="fas fa-chart-bar me-3"></i>Recipe Statistics
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'accounts:user_list' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                            <i class="fas fa-users me-3"></i>Kitchen Staff
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% if user.userprofile.role == 'ADMIN' %}
+                    <li class="mb-2">
+                        <hr class="my-3">
+                        <h6 class="text-muted text-uppercase small">Restaurant Management</h6>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'accounts:user_create' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                            <i class="fas fa-user-plus me-3"></i>Hire Staff
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/admin/" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                            <i class="fas fa-tools me-3"></i>Django Admin
+                        </a>
+                    </li>
+                {% endif %}
+                
+                <li class="mb-2">
+                    <hr class="my-3">
+                </li>
+                <li class="mb-2">
+                    <a href="{% url 'accounts:password_reset' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light">
+                        <i class="fas fa-key me-3"></i>Change Password
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="{% url 'accounts:logout' %}" class="d-flex align-items-center text-decoration-none p-2 rounded hover-bg-light text-danger">
+                        <i class="fas fa-sign-out-alt me-3"></i>Logout
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.hover-bg-light:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+</style>

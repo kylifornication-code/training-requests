@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ page_title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate id="trainingRequestForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">Recipe/Skill Name *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.training_type.id_for_label }}" class="form-label">Culinary Category *</label>
+                                {{ form.training_type }}
+                                {% if form.training_type.errors %}
+                                    <div class="text-danger small">{{ form.training_type.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.estimated_cost.id_for_label }}" class="form-label">Estimated Cost *</label>
+                                <div class="input-group">
+                                    {{ form.estimated_cost }}
+                                    <span class="input-group-text" id="currency-display">USD</span>
+                                </div>
+                                {% if form.estimated_cost.errors %}
+                                    <div class="text-danger small">{{ form.estimated_cost.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">
+                                    <small id="cost-breakdown" class="text-muted"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.currency.id_for_label }}" class="form-label">Currency *</label>
+                                {{ form.currency }}
+                                {% if form.currency.errors %}
+                                    <div class="text-danger small">{{ form.currency.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date *</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small">{{ form.start_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date *</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger small">{{ form.end_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description *</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.justification.id_for_label }}" class="form-label">Business Justification *</label>
+                            {{ form.justification }}
+                            {% if form.justification.errors %}
+                                <div class="text-danger small">{{ form.justification.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Explain how this training will benefit your role and the team.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.supporting_documents.id_for_label }}" class="form-label">Supporting Documents</label>
+                            {{ form.supporting_documents }}
+                            {% if form.supporting_documents.errors %}
+                                <div class="text-danger small">{{ form.supporting_documents.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Optional: Upload supporting documents (PDF, DOC, DOCX, TXT files up to 10MB).
+                                <br><small id="file-info" class="text-muted"></small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'training_requests:my_requests' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form elements
+    const form = document.getElementById('trainingRequestForm');
+    const costInput = document.getElementById('{{ form.estimated_cost.id_for_label }}');
+    const currencyInput = document.getElementById('{{ form.currency.id_for_label }}');
+    const currencyDisplay = document.getElementById('currency-display');
+    const costBreakdown = document.getElementById('cost-breakdown');
+    const fileInput = document.getElementById('{{ form.supporting_documents.id_for_label }}');
+    const fileInfo = document.getElementById('file-info');
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    // Add form classes for Bootstrap styling
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        if (input.type === 'date') {
+            input.classList.add('form-control');
+        } else if (input.tagName === 'SELECT') {
+            input.classList.add('form-select');
+        } else if (input.tagName === 'TEXTAREA') {
+            input.classList.add('form-control');
+            input.rows = 4;
+        } else if (input.type !== 'file') {
+            input.classList.add('form-control');
+        }
+    });
+    
+    // Currency display update
+    function updateCurrencyDisplay() {
+        const currency = currencyInput.value.toUpperCase() || 'USD';
+        currencyDisplay.textContent = currency;
+    }
+    
+    // Cost calculation and breakdown
+    function updateCostBreakdown() {
+        const cost = parseFloat(costInput.value) || 0;
+        const currency = currencyInput.value.toUpperCase() || 'USD';
+        
+        if (cost > 0) {
+            const breakdown = [];
+            
+            // Add cost categories based on amount
+            if (cost > 5000) {
+                breakdown.push('High-value training (requires additional approval)');
+            } else if (cost > 1000) {
+                breakdown.push('Standard training request');
+            } else {
+                breakdown.push('Low-cost training');
+            }
+            
+            // Format cost display with better currency support
+            let formattedCost;
+            try {
+                formattedCost = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency
+                }).format(cost);
+            } catch (e) {
+                // Fallback for unsupported currencies
+                formattedCost = `${cost.toFixed(2)} ${currency}`;
+            }
+            
+            breakdown.push(`Total: ${formattedCost}`);
+            costBreakdown.textContent = breakdown.join(' • ');
+        } else {
+            costBreakdown.textContent = '';
+        }
+    }
+    
+    // File upload validation and info
+    function updateFileInfo() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+            const allowedTypes = ['pdf', 'doc', 'docx', 'txt'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedTypes.includes(fileExtension)) {
+                fileInfo.innerHTML = '<span class="text-danger">Invalid file type. Please upload PDF, DOC, DOCX, or TXT files only.</span>';
+                fileInput.setCustomValidity('Invalid file type');
+            } else if (file.size > 10 * 1024 * 1024) { // 10MB
+                fileInfo.innerHTML = '<span class="text-danger">File too large. Maximum size is 10MB.</span>';
+                fileInput.setCustomValidity('File too large');
+            } else {
+                fileInfo.innerHTML = `<span class="text-success">✓ ${file.name} (${fileSize} MB)</span>`;
+                fileInput.setCustomValidity('');
+            }
+        } else {
+            fileInfo.textContent = '';
+            fileInput.setCustomValidity('');
+        }
+    }
+    
+    // Date validation
+    function validateDates() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Clear previous custom validity
+        startDateInput.setCustomValidity('');
+        endDateInput.setCustomValidity('');
+        
+        // Validate start date is not in the past
+        if (startDateInput.value && startDate < today) {
+            startDateInput.setCustomValidity('Start date cannot be in the past');
+        }
+        
+        // Validate end date is not before start date
+        if (startDateInput.value && endDateInput.value && endDate < startDate) {
+            endDateInput.setCustomValidity('End date cannot be before start date');
+        }
+    }
+    
+    // Real-time validation
+    function validateForm() {
+        validateDates();
+        updateFileInfo();
+        
+        // Update submit button state
+        const isValid = form.checkValidity();
+        submitButton.disabled = !isValid;
+        
+        if (!isValid) {
+            submitButton.classList.add('btn-secondary');
+            submitButton.classList.remove('btn-primary');
+        } else {
+            submitButton.classList.add('btn-primary');
+            submitButton.classList.remove('btn-secondary');
+        }
+    }
+    
+    // Event listeners
+    currencyInput.addEventListener('input', function() {
+        updateCurrencyDisplay();
+        updateCostBreakdown();
+    });
+    
+    costInput.addEventListener('input', function() {
+        updateCostBreakdown();
+        
+        // Validate positive number
+        const cost = parseFloat(this.value);
+        if (this.value && (isNaN(cost) || cost < 0)) {
+            this.setCustomValidity('Please enter a valid positive number');
+        } else {
+            this.setCustomValidity('');
+        }
+        validateForm();
+    });
+    
+    fileInput.addEventListener('change', function() {
+        updateFileInfo();
+        validateForm();
+    });
+    
+    startDateInput.addEventListener('change', validateForm);
+    endDateInput.addEventListener('change', validateForm);
+    
+    // Validate all required fields
+    const requiredInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+    requiredInputs.forEach(input => {
+        input.addEventListener('input', validateForm);
+        input.addEventListener('change', validateForm);
+    });
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        validateForm();
+        
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Show validation errors
+            const firstInvalidField = form.querySelector(':invalid');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        }
+        
+        form.classList.add('was-validated');
+    });
+    
+    // Initialize
+    updateCurrencyDisplay();
+    updateCostBreakdown();
+    validateForm();
+});
+</script>
+{% endblock %}

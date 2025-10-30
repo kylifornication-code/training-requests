@@ -1,0 +1,317 @@
+/* Custom Admin Styles for Training Request Management System */
+
+/* Header customization */
+#header {
+    background: linear-gradient(135deg, #417690 0%, #2c5aa0 100%);
+    color: white;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: white;
+    font-weight: 300;
+}
+
+/* Dashboard statistics styling */
+.dashboard-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    min-width: 150px;
+    flex: 1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.stat-box h3 {
+    margin: 0 0 10px 0;
+    color: #6c757d;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #417690;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.stat-link {
+    color: #417690;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.stat-link:hover {
+    text-decoration: underline;
+    color: #2c5aa0;
+}
+
+/* Enhanced form styling */
+.form-row .form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 8px 12px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-row .form-control:focus {
+    border-color: #417690;
+    box-shadow: 0 0 0 0.2rem rgba(65, 118, 144, 0.25);
+}
+
+/* User profile status indicators */
+.profile-status-active {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.profile-status-inactive {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Enhanced table styling */
+#result_list {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#result_list th {
+    background: linear-gradient(135deg, #417690 0%, #2c5aa0 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+#result_list tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#result_list tr:hover {
+    background-color: #e3f2fd;
+}
+
+/* Action buttons styling */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: linear-gradient(135deg, #417690 0%, #2c5aa0 100%);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3d72 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    color: white;
+}
+
+.button.default, .default {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.button.default:hover, .default:hover {
+    background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+}
+
+/* Fieldset styling */
+fieldset.module {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+fieldset.module h2 {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #495057;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Messages styling */
+.messagelist .success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+    color: #155724;
+}
+
+.messagelist .warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.messagelist .error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+/* Breadcrumbs styling */
+.breadcrumbs {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.breadcrumbs a {
+    color: #417690;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+/* Profile summary styling */
+.profile-summary {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.profile-summary h3 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.summary-stats {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    font-size: 14px;
+    color: #495057;
+}
+
+.active-count {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.leadership-count {
+    color: #417690;
+    font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .dashboard-stats {
+        flex-direction: column;
+    }
+    
+    .stat-box {
+        min-width: auto;
+    }
+    
+    .summary-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(65, 118, 144, 0.3);
+    border-radius: 50%;
+    border-top-color: #417690;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Enhanced filter sidebar */
+#changelist-filter {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+#changelist-filter h2 {
+    background: linear-gradient(135deg, #417690 0%, #2c5aa0 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+}
+
+#changelist-filter h3 {
+    color: #495057;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+#changelist-filter a {
+    color: #417690;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+#changelist-filter a:hover {
+    background-color: rgba(65, 118, 144, 0.1);
+    text-decoration: none;
+}
+
+#changelist-filter a.selected {
+    background-color: #417690;
+    color: white;
+    font-weight: 600;
+}

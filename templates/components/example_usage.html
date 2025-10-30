@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load training_extras %}
+
+{% block title %}Component Examples - Training Request System{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+{% page_header title="Component Examples" subtitle="Demonstration of reusable UI components" icon="fas fa-puzzle-piece" action_url="#" action_text="New Action" action_icon="fas fa-plus" %}
+
+<!-- Breadcrumb -->
+{% breadcrumb breadcrumbs %}
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        {% stat_card title="Total Requests" value="42" icon="fas fa-list" color="primary" %}
+    </div>
+    <div class="col-md-3">
+        {% stat_card title="Pending" value="8" icon="fas fa-clock" color="warning" subtitle="Awaiting review" %}
+    </div>
+    <div class="col-md-3">
+        {% stat_card title="Approved" value="28" icon="fas fa-check" color="success" %}
+    </div>
+    <div class="col-md-3">
+        {% stat_card title="Completed" value="6" icon="fas fa-graduation-cap" color="info" %}
+    </div>
+</div>
+
+<!-- Status Badges -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Status Badges</h5>
+    </div>
+    <div class="card-body">
+        <p>Request Status: {{ "PENDING"|status_badge }}</p>
+        <p>Training Type: {{ "CONFERENCE"|training_type_badge }}</p>
+        <p>User Role: {{ "LEADERSHIP"|role_badge }}</p>
+        <p>Currency: {{ 1500.50|currency_format:"USD" }}</p>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Progress Indicators</h5>
+    </div>
+    <div class="card-body">
+        <p>Completion Progress:</p>
+        {{ 75|progress_bar:"success" }}
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Action Buttons</h5>
+    </div>
+    <div class="card-body">
+        <div class="d-flex gap-2 flex-wrap">
+            {% action_button url="#" text="Primary Action" icon="fas fa-star" variant="primary" %}
+            {% action_button url="#" text="Secondary" icon="fas fa-cog" variant="secondary" size="sm" %}
+            {% action_button url="#" text="Danger" icon="fas fa-trash" variant="danger" extra_classes="ms-2" %}
+        </div>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Empty State</h5>
+    </div>
+    <div class="card-body">
+        {% empty_state title="No Data Found" message="There are no items to display at this time." icon="fas fa-inbox" action_url="#" action_text="Add New Item" %}
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Loading Spinner</h5>
+    </div>
+    <div class="card-body">
+        {% loading_spinner variant="primary" text="Loading data..." show_text=True %}
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+{% confirm_modal modal_id="exampleModal" title="Delete Item" message="Are you sure you want to delete this item? This action cannot be undone." variant="danger" confirm_text="Delete" icon="fas fa-exclamation-triangle" confirm_icon="fas fa-trash" %}
+
+<script>
+// Example breadcrumbs data (would normally come from view context)
+const breadcrumbs = [
+    { title: 'Home', url: '/', icon: 'fas fa-home' },
+    { title: 'Components', url: '/components/', icon: 'fas fa-puzzle-piece' },
+    { title: 'Examples', icon: 'fas fa-eye' }
+];
+</script>
+{% endblock %}

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Chef's Training Kitchen{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/restaurant-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/restaurant-animations.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand i {
+            color: var(--warning-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .role-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+        }
+        
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+        }
+        
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.375rem;
+        }
+        
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: box-shadow 0.15s ease-in-out;
+        }
+        
+        .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn {
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .badge {
+            font-weight: 500;
+        }
+        
+        .progress {
+            height: 0.75rem;
+            border-radius: 0.375rem;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            
+            .role-badge {
+                font-size: 0.7rem;
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Component-specific styles */
+        .status-badge {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .messages-container .alert {
+            margin-bottom: 1rem;
+        }
+        
+        .messages-container .alert:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Table responsiveness */
+        .table-responsive {
+            border-radius: 0.5rem;
+        }
+        
+        /* Form styling */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        /* Loading states */
+        .btn:disabled {
+            opacity: 0.65;
+        }
+        
+        /* Utility classes */
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+        
+        /* Footer styling */
+        footer {
+            margin-top: auto;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            flex: 1;
+        }
+        
+        /* Print styles */
+        @media print {
+            .navbar,
+            .btn,
+            .pagination,
+            footer {
+                display: none !important;
+            }
+            
+            .container {
+                max-width: none !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <!-- Mobile menu button -->
+            {% if user.is_authenticated %}
+            <button class="btn btn-outline-light d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            {% endif %}
+            
+            <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'training_requests:dashboard' %}{% else %}{% url 'accounts:login' %}{% endif %}">
+                <i class="fas fa-utensils me-2"></i>Chef's Training Kitchen
+            </a>
+            
+            {% if user.is_authenticated %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'training_requests:dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'training_requests:request_list' %}">
+                            <i class="fas fa-list me-1"></i>My Recipe Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'training_requests:create_request' %}">
+                            <i class="fas fa-plus me-1"></i>New Recipe Order
+                        </a>
+                    </li>
+                    
+                    {% if user.userprofile.role == 'LEADERSHIP' or user.userprofile.role == 'ADMIN' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle position-relative" href="#" id="leadershipDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-chef-hat me-1"></i>Head Chef
+                            {% if pending_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark notification-badge" 
+                                      id="navPendingBadge" style="font-size: 0.6rem;">
+                                    {{ pending_count }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'training_requests:leadership_dashboard' %}">
+                                <i class="fas fa-chef-hat me-1"></i>Head Chef Dashboard
+                                {% if pending_count > 0 %}
+                                    <span class="badge bg-warning text-dark ms-2">{{ pending_count }}</span>
+                                {% endif %}
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'training_requests:pending_requests' %}">
+                                <i class="fas fa-clipboard-list me-1"></i>Orders Awaiting Approval
+                                {% if pending_count > 0 %}
+                                    <span class="badge bg-warning text-dark ms-2">{{ pending_count }}</span>
+                                {% endif %}
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'reports:analytics_dashboard' %}">
+                                <i class="fas fa-chart-line me-1"></i>Kitchen Analytics
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'training_requests:training_statistics' %}">
+                                <i class="fas fa-chart-bar me-1"></i>Recipe Statistics
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'training_requests:completed_training_report' %}">
+                                <i class="fas fa-clipboard-check me-1"></i>Mastered Recipes
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:user_list' %}">
+                                <i class="fas fa-users me-1"></i>Kitchen Staff
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    
+                    {% if user.userprofile.role == 'ADMIN' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'accounts:user_create' %}">
+                                <i class="fas fa-user-plus me-1"></i>Add User
+                            </a></li>
+                            <li><a class="dropdown-item" href="/admin/">
+                                <i class="fas fa-tools me-1"></i>Django Admin
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <div class="navbar-nav user-info">
+                    <div class="navbar-text">
+                        <i class="fas fa-user me-1"></i>
+                        {{ user.first_name|default:user.username }}
+                        {% if user.userprofile %}
+                            <span class="badge bg-secondary role-badge ms-1">{{ user.userprofile.get_role_display }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">{{ user.get_full_name|default:user.username }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:password_reset' %}">
+                                <i class="fas fa-key me-1"></i>Change Password
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    {% include 'components/mobile_nav.html' %}
+
+    <div class="container mt-4">
+        {% include 'components/messages.html' %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% include 'components/footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- UI Components and Notification system -->
+    {% load static %}
+    <script src="{% static 'js/ui-components.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/restaurant-theme.js' %}"></script>
+    
+    <!-- Initialize notification system with current pending count -->
+    {% if user.userprofile.role == 'LEADERSHIP' or user.userprofile.role == 'ADMIN' %}
+    <script>
+    // Set initial pending count for notification manager
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.notificationManager) {
+            window.notificationManager.lastPendingCount = {{ pending_count|default:0 }};
+        }
+    });
+    </script>
+    {% endif %}
+</body>
+</html>

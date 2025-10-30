@@ -1,0 +1,23 @@
+<div class="modal fade" id="{{ modal_id|default:'confirmModal' }}" tabindex="-1" aria-labelledby="{{ modal_id|default:'confirmModal' }}Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_id|default:'confirmModal' }}Label">
+                    {% if icon %}<i class="{{ icon }} me-2"></i>{% endif %}{{ title|default:'Confirm Action' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ message|default:'Are you sure you want to perform this action?' }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-{{ variant|default:'danger' }}" id="{{ modal_id|default:'confirmModal' }}Confirm">
+                    {% if confirm_icon %}<i class="{{ confirm_icon }} me-1"></i>{% endif %}{{ confirm_text|default:'Confirm' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
