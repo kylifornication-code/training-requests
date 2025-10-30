@@ -46,6 +46,14 @@ INSTALLED_APPS = [
     'reports',
 ]
 
+# Add debug toolbar for development
+if DEBUG:
+    try:
+        import debug_toolbar
+        INSTALLED_APPS.append('debug_toolbar')
+    except ImportError:
+        pass
+
 MIDDLEWARE = [
     'training_system.middleware.HTTPSRedirectMiddleware',
     'training_system.middleware.RateLimitMiddleware',
@@ -63,6 +71,14 @@ MIDDLEWARE = [
     'training_system.middleware.SecurityHeadersMiddleware',
     'training_system.middleware.RequestLoggingMiddleware',
 ]
+
+# Add debug toolbar middleware for development
+if DEBUG:
+    try:
+        import debug_toolbar
+        MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    except ImportError:
+        pass
 
 ROOT_URLCONF = 'training_system.urls'
 
@@ -266,3 +282,22 @@ LOGGING = {
         },
     },
 }
+
+# Debug Toolbar Configuration (Development only)
+if DEBUG:
+    try:
+        import debug_toolbar
+        # Internal IPs for debug toolbar
+        INTERNAL_IPS = [
+            '127.0.0.1',
+            'localhost',
+            '0.0.0.0',
+        ]
+        
+        # Add Docker internal IP ranges
+        import socket
+        hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+        INTERNAL_IPS += [ip[:-1] + '1' for ip in ips]
+        
+    except ImportError:
+        pass

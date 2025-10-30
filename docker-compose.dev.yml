@@ -1,0 +1,118 @@
+# Chef's Training Kitchen - Development Docker Compose
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: chef_kitchen_dev_web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source code for live reloading
+      - .:/app
+      - /app/venv  # Exclude venv from mount
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - DEBUG=True
+      - DATABASE_ENGINE=postgresql
+      - DATABASE_NAME=chef_kitchen_dev
+      - DATABASE_USER=chef_user
+      - DATABASE_PASSWORD=chef_password_dev_123
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - SECRET_KEY=dev-secret-key-change-in-production-very-long-and-random
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - TEAMS_WEBHOOK_URL=
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - chef_network
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:15-alpine
+    container_name: chef_kitchen_dev_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"  # Expose for external access during development
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    environment:
+      POSTGRES_DB: chef_kitchen_dev
+      POSTGRES_USER: chef_user
+      POSTGRES_PASSWORD: chef_password_dev_123
+    networks:
+      - chef_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chef_user -d chef_kitchen_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: chef_kitchen_dev_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"  # Expose for external access during development
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - chef_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Database admin interface
+  adminer:
+    image: adminer:latest
+    container_name: chef_kitchen_dev_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    depends_on:
+      - db
+    networks:
+      - chef_network
+    profiles:
+      - admin
+
+  # Optional: Redis admin interface
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: chef_kitchen_dev_redis_commander
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - chef_network
+    profiles:
+      - admin
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  static_volume:
+  media_volume:
+
+networks:
+  chef_network:
+    driver: bridge
