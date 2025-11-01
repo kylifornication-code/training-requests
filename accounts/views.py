@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView, TemplateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -138,3 +138,14 @@ def toggle_user_status(request, user_id):
         'message': f'User {user.username} has been {action}.',
         'is_active': user.userprofile.is_active
     })
+
+
+class LogoutConfirmView(LoginRequiredMixin, TemplateView):
+    """View to show logout confirmation page and handle logout"""
+    template_name = 'accounts/logout.html'
+    
+    def post(self, request, *args, **kwargs):
+        """Handle logout POST request"""
+        logout(request)
+        messages.success(request, 'You have been successfully logged out.')
+        return redirect('accounts:login')
