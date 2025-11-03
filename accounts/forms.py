@@ -67,19 +67,36 @@ class CustomUserCreationForm(UserCreationForm):
                     ('TEAM_MEMBER', 'Team Member')
                 ]
 
+        # Hide is_active for public registration (no logged-in creator)
+        # or when the creator is not an admin. Public sign-ups should always
+        # be created as active users.
+        if not (self.current_user and hasattr(self.current_user, 'userprofile') and self.current_user.userprofile.role == 'ADMIN'):
+            # Remove the field from the form so it doesn't affect cleaned_data
+            if 'is_active' in self.fields:
+                self.fields.pop('is_active')
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.is_active = self.cleaned_data['is_active']
+        # Ensure public registrations are always active. When the field is
+        # not present (public or non-admin), default to True.
+        if 'is_active' in self.cleaned_data:
+            user.is_active = self.cleaned_data['is_active']
+        else:
+            user.is_active = True
         
         if commit:
             user.save()
             # Create or update user profile
             profile, created = UserProfile.objects.get_or_create(user=user)
             profile.role = self.cleaned_data['role']
-            profile.is_active = self.cleaned_data['is_active']
+            # Keep profile active in sync with user active
+            if 'is_active' in self.cleaned_data:
+                profile.is_active = self.cleaned_data['is_active']
+            else:
+                profile.is_active = True
             profile.save()
         
         return user
