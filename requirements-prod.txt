@@ -5,7 +5,7 @@
 -r requirements.txt
 
 # Production web server
-gunicorn==21.2.0
+gunicorn==22.0.0
 
 # Database drivers
 psycopg2-binary==2.9.9  # PostgreSQL adapter
