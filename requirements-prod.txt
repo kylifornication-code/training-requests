@@ -26,7 +26,7 @@ django-csp==3.7         # Content Security Policy
 django-ratelimit==4.1.0 # Rate limiting
 
 # Monitoring and logging
-sentry-sdk==1.38.0      # Error tracking (optional)
+sentry-sdk==1.45.1      # Error tracking (optional)
 
 # Performance monitoring
 django-debug-toolbar==4.2.0  # Remove in production, useful for staging
